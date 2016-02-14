@@ -1,0 +1,24 @@
+{
+    "name": "Go",
+    "description": "No description",
+    "build": [
+        
+    ],
+    "stable": [
+        {
+            "version": "1.5.3",
+            "arch": "x64",
+            "os": "linux",
+            "binary": true,
+            "source": {
+                "hash": {
+                  "type": "sha256",
+                  "value": "6b10e446b5a1227673b87d840e9a500f5d2dbd2b806d96e2d81d634c3381a5f1"  
+                },
+                "type": "URL",
+                "link": "https://storage.googleapis.com/golang/go1.5.3.linux-amd64.tar.gz",
+                "target": "go"
+            }
+        }
+    ]
+}

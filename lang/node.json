@@ -1,0 +1,38 @@
+{
+    "name": "Node",
+    "description": "No description",
+    "export": {
+      "binary": "bin"
+    },
+    "build": [
+        
+    ],
+    "stable": [
+        {
+            "version": "v5.6.0",
+            "arch": "x64",
+            "os": "linux",
+            "binary": true,
+            "source": {
+                "hash": {
+                  "type": "sha256",
+                  "value": "6b10e446b5a1227673b87d840e9a500f5d2dbd2b806d96e2d81d634c3381a5f1"  
+                },
+                "type": "URL",
+                "link": "https://nodejs.org/download/release/v5.6.0/node-v5.6.0-linux-x64.tar.gz",
+                "target": "node-v5.6.0-linux-x64"
+            }
+        },
+        {
+            "version": "v5.6.0",
+            "arch": "x64",
+            "os": "linux",
+            "binary": false,
+            "source": {
+                "type": "URL",
+                "link": "https://nodejs.org/download/release/latest/node-v5.6.0.tar.gz",
+                "target": "node-v5.6.0"
+            }
+        }
+    ]
+}
