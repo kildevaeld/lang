@@ -1,3 +1,4 @@
 lang/root
 .DS_Store
 generator/node_modules
+generator/lib
