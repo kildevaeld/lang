@@ -71,6 +71,10 @@ func (self *Language) List() []Version {
 	return self.definition.Stable
 }
 
+func (self *Language) GetName() string {
+	return self.definition.Name
+}
+
 func (self *Language) GetVersion(version string, oss OS, arch Arch, binary bool) *Version {
 
 	if "unstable" == strings.ToLower(version) {
@@ -78,6 +82,13 @@ func (self *Language) GetVersion(version string, oss OS, arch Arch, binary bool)
 	}
 	ver := version
 	for _, v := range self.definition.Stable {
+		if version == "latest" {
+			if v.Latest {
+				return &v
+			}
+			continue
+		}
+
 		if v.Version[0] == 'v' && version[0] != 'v' {
 			ver = "v" + version
 		} else if v.Version[0] != 'v' && version[0] == 'v' {
@@ -139,6 +150,7 @@ func (self *Language) download(version Version, progressCB func(step Step, progr
 			if err != nil {
 				return "", err
 			}
+
 		}
 
 		tmpDir := self.paths.Temp(fmt.Sprintf("%s-%s-%s", version.Version, version.Os, version.Arch))
@@ -147,6 +159,12 @@ func (self *Language) download(version Version, progressCB func(step Step, progr
 		}
 
 		if !dirExists(tmpDir) {
+
+			if err := ValidateFile(version.Source.Hash.Type, version.Source.Hash.Value, localFile); err != nil {
+				os.Remove(localFile)
+				return "", err
+			}
+
 			err := unpack(localFile, self.paths.Temp(), func(progress, total int64) {
 				progressCB(Unpack, progress, total)
 			})

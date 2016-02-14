@@ -13,6 +13,7 @@
             "arch": "x64",
             "os": "linux",
             "binary": true,
+            "latest": true,
             "source": {
                 "hash": {
                   "type": "sha256",

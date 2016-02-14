@@ -45,36 +45,15 @@ func unpack(source, target string, progressCB func(progress, total int64)) error
 	} else if bzipReg.Match([]byte(source)) {
 		reader := bzip2.NewReader(file)
 
+		//total := analyze_tar(reader)
+
+		file.Seek(0, 0)
+
 		return unpack_tar(reader, target, nil)
 	} else if pkgReg.Match([]byte(source)) {
 
 	}
 
-	/*file, ferr := os.Open(localFile)
-
-	if ferr != nil {
-		return ferr
-	}
-	defer file.Close()
-
-	reader, rerr := gzip.NewReader(file)
-	if rerr != nil {
-		return rerr
-	}
-	defer reader.Close()
-	progressCB(Unpack)
-
-	target := self.config.Source
-
-	if version.Source {
-		target = self.config.Temp
-	}
-
-	err = UnpackFile(reader, target, 0)
-
-	if err != nil {
-		return err
-	}*/
 	return nil
 }
 

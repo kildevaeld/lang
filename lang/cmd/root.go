@@ -20,13 +20,14 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/cheggaaa/pb"
 	"github.com/kildevaeld/lang"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var cfgFile string
+
+var service *lang.Service
 
 // This represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -42,7 +43,7 @@ to quickly create a Cobra application.`,
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
 
-		bs, _ := ioutil.ReadFile("rust.json")
+		/*bs, _ := ioutil.ReadFile("rust.json")
 
 		var def lang.Definition
 		err := json.Unmarshal(bs, &def)
@@ -74,13 +75,24 @@ to quickly create a Cobra application.`,
 		if bar != nil {
 			bar.FinishPrint("")
 		}
-		fmt.Printf("%v\n", err)
+		fmt.Printf("%v\n", err)*/
 	},
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
+
+	service = lang.New(lang.Config{
+		Root: "root",
+	})
+
+	bs, _ := ioutil.ReadFile("node.json")
+
+	var def lang.Definition
+	json.Unmarshal(bs, &def)
+
+	service.AddDefinition(def)
 
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)

@@ -16,7 +16,7 @@ const (
 	Download
 	Compile
 	Configure
-	Build
+	//Build
 	Install
 )
 

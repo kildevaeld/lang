@@ -5,10 +5,16 @@ type Build struct {
 	Exec        string
 }
 
+type Hash struct {
+	Type  string
+	Value string
+}
+
 type Source struct {
 	Type   SourceType
 	Link   string
 	Target string
+	Hash   Hash
 }
 
 type Version struct {
@@ -16,6 +22,7 @@ type Version struct {
 	Arch    Arch
 	Os      OS
 	Binary  bool
+	Latest  bool
 	Source  Source
 }
 
