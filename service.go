@@ -1,7 +1,9 @@
 package lang
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -9,6 +11,7 @@ import (
 
 var HostArch Arch
 var HostOs OS
+var ManifestRepo = "https://raw.githubusercontent.com/kildevaeld/lang/master/generator/manifest.json"
 
 func init() {
 	switch runtime.GOOS {
@@ -116,6 +119,59 @@ func (self *Service) Environ() []string {
 
 }
 
+func (self *Service) Update(progressCB func(step Step, p, t int64)) error {
+	m := filepath.Join(self.config.Root, "manifest.json")
+	err := download(ManifestRepo, m, progressCB)
+
+	if err != nil {
+		return err
+	}
+
+	bs, ferr := ioutil.ReadFile(m)
+
+	if ferr != nil {
+		return ferr
+	}
+
+	var out map[string]Definition
+
+	if err := json.Unmarshal(bs, &out); err != nil {
+		return err
+	}
+
+	for _, l := range out {
+		self.AddDefinition(l)
+	}
+
+	//self.langs = out
+
+	return nil
+}
+
+func (self *Service) loadManifestFile() error {
+	m := filepath.Join(self.config.Root, "manifest.json")
+	if !fileExists(m) {
+		return nil
+	}
+	bs, ferr := ioutil.ReadFile(m)
+
+	if ferr != nil {
+		return ferr
+	}
+
+	var out map[string]Definition
+
+	if err := json.Unmarshal(bs, &out); err != nil {
+		return err
+	}
+
+	for _, l := range out {
+		self.AddDefinition(l)
+	}
+
+	return nil
+}
+
 func (self *Service) Install(lang, v string, binary bool, progressCB func(step Step, progres, total int64)) error {
 
 	var language *Language
@@ -138,8 +194,13 @@ func (self *Service) Install(lang, v string, binary bool, progressCB func(step S
 }
 
 func New(config Config) *Service {
-	return &Service{
+
+	ser := &Service{
 		config: config,
 		langs:  make(map[string]*Language),
 	}
+
+	ser.loadManifestFile()
+
+	return ser
 }
