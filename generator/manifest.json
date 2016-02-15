@@ -6950,8 +6950,8 @@
           "target": "rust-1.6.0-i686-apple-darwin"
         },
         "build": [
-          {
-            "exec": "install.sh --prefix={{.Source}}"
+          {  
+            "exec": "./install.sh --prefix={{.Source}}"
           }
         ],
         "os": "darwin",
@@ -6985,7 +6985,7 @@
         },
         "build": [
           {
-            "exec": "install.sh --prefix={{.Source}}"
+            "exec": "./install.sh --prefix={{.Source}}"
           }
         ],
         "os": "darwin",
@@ -7021,7 +7021,7 @@
         },
         "build": [
           {
-            "exec": "install.sh --prefix={{.Source}}"
+            "exec": "./install.sh --prefix={{.Source}}"
           }
         ],
         "os": "darwin",

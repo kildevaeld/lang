@@ -87,7 +87,7 @@ func (self *Language) GetVersion(version string, oss OS, arch Arch, binary bool)
 	}
 	ver := version
 	for _, v := range self.definition.Stable {
-		if version == "latest" {
+		if version == "latest" && v.Os == oss && v.Arch == arch && v.Binary == binary {
 			if v.Latest {
 				return &v
 			}
@@ -111,7 +111,7 @@ func (self *Language) GetVersion(version string, oss OS, arch Arch, binary bool)
 
 func (self *Language) Use(version Version) error {
 	sourceDir := self.paths.Source(fmt.Sprintf("%s-%s-%s", version.Version, version.Os, version.Arch))
-
+	fmt.Printf("Sourcedir %s", sourceDir)
 	if !dirExists(sourceDir) {
 		return fmt.Errorf("Not installed")
 	}

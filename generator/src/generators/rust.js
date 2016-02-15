@@ -44,7 +44,7 @@ async function getVersions(channel, max = 10) {
             },
             build: [
                 {
-                    "exec" : "install.sh --prefix={{.Source}} --verbose"
+                    "exec" : "./install.sh --prefix={{.Source}} --verbose"
                 }
             ]
         }

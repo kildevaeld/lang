@@ -39,7 +39,7 @@ to quickly create a Cobra application.`,
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		// TODO: Work your own magic here
-		version := ""
+		version := "latest"
 		prog := args[0]
 		if len(args) > 1 {
 			version = args[1]

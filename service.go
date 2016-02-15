@@ -112,10 +112,14 @@ func (self *Service) Environ() []string {
 			library = append(library, ln.paths.Current(export.Library))
 		}
 	}
+	lib := "LD_LIBRARY_PATH"
+	if HostOs == Darwin {
+		lib = "DYLD_LIBRARY_PATH"
+	}
 	path = append(path, "$PATH")
-	library = append(library, "$LD_LIBRARY_PATH")
+	library = append(library, "$"+lib)
 
-	return []string{"PATH=" + strings.Join(path, ":"), "LD_LIBRARY_PATH=" + strings.Join(library, ":")}
+	return []string{"PATH=" + strings.Join(path, ":"), "export " + lib + "=" + strings.Join(library, ":")}
 
 }
 
