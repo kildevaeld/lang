@@ -3,6 +3,7 @@ package lang
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -71,6 +72,10 @@ func (self *Language) List() []Version {
 	return self.definition.Stable
 }
 
+func (self *Language) Definition() Definition {
+	return self.definition
+}
+
 func (self *Language) GetName() string {
 	return self.definition.Name
 }
@@ -78,7 +83,7 @@ func (self *Language) GetName() string {
 func (self *Language) GetVersion(version string, oss OS, arch Arch, binary bool) *Version {
 
 	if "unstable" == strings.ToLower(version) {
-		return &self.definition.Unstable
+		return &self.definition.Unstable[0]
 	}
 	ver := version
 	for _, v := range self.definition.Stable {
@@ -104,6 +109,37 @@ func (self *Language) GetVersion(version string, oss OS, arch Arch, binary bool)
 
 }
 
+func (self *Language) Use(version Version) error {
+	sourceDir := self.paths.Source(fmt.Sprintf("%s-%s-%s", version.Version, version.Os, version.Arch))
+
+	if !dirExists(sourceDir) {
+		return fmt.Errorf("Not installed")
+	}
+
+	target := self.paths.Current()
+
+	if dirExists(target) {
+		os.RemoveAll(target)
+	}
+
+	err := os.Symlink(sourceDir, target)
+
+	if err != nil {
+		return err
+	}
+
+	versionFile := self.paths.Root("version")
+	ioutil.WriteFile(versionFile, []byte(version.Version), 0755)
+
+	return nil
+
+}
+
+func (self *Language) Remove(version Version) error {
+	//sourceDir := self.paths.Source(fmt.Sprintf("%s-%s-%s", version.Version, version.Os, version.Arch))
+	return nil
+}
+
 func (self *Language) Install(version Version, progressCB func(step Step, progress, total int64)) error {
 
 	if progressCB == nil {
@@ -120,17 +156,27 @@ func (self *Language) Install(version Version, progressCB func(step Step, progre
 
 	sourceDir := self.paths.Source(fmt.Sprintf("%s-%s-%s", version.Version, version.Os, version.Arch))
 
-	if version.Binary {
+	shouldCopy := false
+	if len(version.Build) > 0 {
+		//progressCB(Compile, 0, 0)
+		if err := self.compile(target, sourceDir, version); err != nil {
+			return err
+		}
+		if !dirExists(sourceDir) {
+			shouldCopy = true
+		}
+
+	} else {
+		shouldCopy = true
+	}
+
+	if shouldCopy {
 		total := analyzeDir(target)
 		var index int64 = 0
 		if err := copyDir(target, sourceDir, func(s, t string) {
 			index++
 			progressCB(Install, index, total)
 		}); err != nil {
-			return err
-		}
-	} else {
-		if err := self.compile(target, sourceDir, version); err != nil {
 			return err
 		}
 	}
@@ -141,7 +187,7 @@ func (self *Language) Install(version Version, progressCB func(step Step, progre
 func (self *Language) download(version Version, progressCB func(step Step, progress, total int64)) (string, error) {
 
 	if version.Source.Type == URL {
-		fileName := filepath.Base(version.Source.Link) //fmt.Sprintf("%s-%s-%s%s", version.Version, version.Os, version.Arch, filepath.Ext(version.Source.Link))
+		fileName := filepath.Base(version.Source.Link)
 		localFile := self.paths.Cache(fileName)
 
 		if !fileExists(localFile) {
@@ -160,9 +206,11 @@ func (self *Language) download(version Version, progressCB func(step Step, progr
 
 		if !dirExists(tmpDir) {
 
-			if err := ValidateFile(version.Source.Hash.Type, version.Source.Hash.Value, localFile); err != nil {
-				os.Remove(localFile)
-				return "", err
+			if version.Source.Hash.Type != "" {
+				if err := ValidateFile(version.Source.Hash.Type, version.Source.Hash.Value, localFile); err != nil {
+					os.Remove(localFile)
+					return "", err
+				}
 			}
 
 			err := unpack(localFile, self.paths.Temp(), func(progress, total int64) {
@@ -170,6 +218,7 @@ func (self *Language) download(version Version, progressCB func(step Step, progr
 			})
 
 			if err != nil {
+				os.Remove(localFile)
 				return "", err
 			}
 		}
@@ -182,9 +231,8 @@ func (self *Language) download(version Version, progressCB func(step Step, progr
 
 }
 
-func (self *Language) compile(source, prefix string, version Version) error {
-
-	return nil
+func (self *Language) compile(working, prefix string, version Version) error {
+	return compile(working, prefix, self, version)
 }
 
 func NewLanguage(path string, def Definition) (*Language, error) {

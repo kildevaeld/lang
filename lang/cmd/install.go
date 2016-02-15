@@ -31,13 +31,8 @@ var binaryFlag bool
 // installCmd represents the install command
 var installCmd = &cobra.Command{
 	Use:   "install",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "",
+	Long:  ``,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
 			return errors.New("Usage: lang install <language>...")
@@ -73,15 +68,6 @@ func init() {
 
 	installCmd.Flags().StringVarP(&versionFlag, "version", "v", "", "")
 	installCmd.Flags().BoolVarP(&binaryFlag, "binary", "b", true, "")
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// installCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// installCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
 }
 
@@ -107,7 +93,7 @@ func install(l, version string) error {
 
 			if total > 0 {
 				bar = pb.New64(total).Prefix("  " + stepToMsg(step) + "\t\t")
-				bar.SetMaxWidth(40)
+				bar.SetWidth(40)
 				bar.ShowCounters = false
 				//fmt.Printf("%s\n", step)
 				//bar.NotPrint = true

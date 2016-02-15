@@ -18,7 +18,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"os"
+	"path/filepath"
 
 	"github.com/kildevaeld/lang"
 	"github.com/spf13/cobra"
@@ -83,20 +83,33 @@ to quickly create a Cobra application.`,
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 
+	configDir, err := lang.ConfigDir()
+
+	if err != nil {
+		printError(err)
+	}
+
+	if !filepath.IsAbs(configDir) {
+		if configDir, err = filepath.Abs(configDir); err != nil {
+			printError(err)
+		}
+	}
+
 	service = lang.New(lang.Config{
-		Root: "root",
+		Root: configDir,
 	})
 
-	bs, _ := ioutil.ReadFile("node.json")
+	bs, _ := ioutil.ReadFile("../generator/manifest.json")
 
-	var def lang.Definition
+	var def map[string]lang.Definition
 	json.Unmarshal(bs, &def)
 
-	service.AddDefinition(def)
+	for _, v := range def {
+		service.AddDefinition(v)
+	}
 
 	if err := RootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(-1)
+		printError(err)
 	}
 }
 

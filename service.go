@@ -44,8 +44,8 @@ type Service struct {
 
 func (self *Service) Languages() []string {
 	var out []string
-	for _, v := range self.langs {
-		out = append(out, v.GetName())
+	for k, _ := range self.langs {
+		out = append(out, k)
 	}
 	return out
 }
@@ -59,6 +59,15 @@ func (self *Service) HasLanguage(name string) bool {
 	return false
 }
 
+func (self *Service) GetLanguage(name string) *Language {
+	for ln, ll := range self.langs {
+		if ln == strings.ToLower(name) {
+			return ll
+		}
+	}
+	return nil
+}
+
 func (self *Service) AddDefinition(d Definition) (*Language, error) {
 	lcName := strings.ToLower(d.Name)
 	path := filepath.Join(self.config.Root, lcName)
@@ -68,6 +77,43 @@ func (self *Service) AddDefinition(d Definition) (*Language, error) {
 	}
 	self.langs[lcName] = lang
 	return lang, nil
+}
+
+func (self *Service) Use(lang, version string, binary bool) error {
+	var language *Language
+	var ok bool
+	if language, ok = self.langs[strings.ToLower(lang)]; !ok {
+		return fmt.Errorf("No language: %s", lang)
+	}
+
+	v := language.GetVersion(version, HostOs, HostArch, binary)
+
+	if v == nil {
+		v := language.GetVersion(version, HostOs, HostArch, !binary)
+		if v == nil {
+			return fmt.Errorf("Version %s not found for language %s", v, lang)
+		}
+	}
+
+	return language.Use(*v)
+}
+
+func (self *Service) Environ() []string {
+	var path, library []string
+	for _, ln := range self.langs {
+		export := ln.Definition().Export
+		if export.Binary != "" {
+			path = append(path, ln.paths.Current(export.Binary))
+		}
+		if export.Library != "" {
+			library = append(library, ln.paths.Current(export.Library))
+		}
+	}
+	path = append(path, "$PATH")
+	library = append(library, "$LD_LIBRARY_PATH")
+
+	return []string{"PATH=" + strings.Join(path, ":"), "LD_LIBRARY_PATH=" + strings.Join(library, ":")}
+
 }
 
 func (self *Service) Install(lang, v string, binary bool, progressCB func(step Step, progres, total int64)) error {

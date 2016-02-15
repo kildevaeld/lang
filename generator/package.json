@@ -13,6 +13,12 @@
     "babel-cli": "^6.5.1",
     "babel-preset-es2015-without-regenerator": "^1.0.1",
     "babel-preset-stage-0": "^6.5.0",
+    "babel-preset-stage-1": "^6.5.0",
     "babel-preset-stage-3": "^6.5.0"
+  },
+  "dependencies": {
+    "bluebird": "^3.3.1",
+    "mz": "^2.3.1",
+    "request-promise": "^2.0.0"
   }
 }

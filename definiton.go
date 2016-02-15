@@ -1,6 +1,7 @@
 package lang
 
-type Build struct {
+type Command struct {
+	Name        string
 	Interpreter string
 	Exec        string
 }
@@ -24,6 +25,7 @@ type Version struct {
 	Binary  bool
 	Latest  bool
 	Source  Source
+	Build   []Command
 }
 
 type Export struct {
@@ -35,6 +37,6 @@ type Definition struct {
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	Stable      []Version `json:"stable"`
-	Unstable    Version   `json:"unstable"`
+	Unstable    []Version `json:"unstable"`
 	Export      Export
 }
