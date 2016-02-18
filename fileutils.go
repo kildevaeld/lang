@@ -3,6 +3,7 @@ package lang
 import (
 	"io"
 	"os"
+	"strings"
 )
 
 func fileExists(path string) bool {
@@ -146,13 +147,12 @@ func copyDir(source string, dest string, progressCB func(source, dest string)) (
 	return
 }
 
-func analyzeDir(source string) int64 {
+func analyzeDir(source string) (number_of_files int64, total_size int64) {
 
-	var out int64
 	// get properties of source dir
 	_, err := os.Stat(source)
 	if err != nil {
-		return out
+		return -1, -1
 	}
 
 	// create dest dir
@@ -166,13 +166,29 @@ func analyzeDir(source string) int64 {
 		sourcefilepointer := source + "/" + obj.Name()
 
 		if obj.IsDir() {
-			// create sub-directories - recursively
-			out += analyzeDir(sourcefilepointer)
-
+			n, t := analyzeDir(sourcefilepointer)
+			number_of_files += n
+			total_size += t
 		} else {
-			out++
+			number_of_files++
+			total_size += obj.Size()
 		}
 
 	}
-	return out
+	return
+}
+
+type StrSlice []string
+
+func (self StrSlice) Contains(str string) bool {
+	for _, s := range self {
+		if s == str {
+			return true
+		}
+	}
+	return false
+}
+
+func (self StrSlice) Join(sep string) string {
+	return strings.Join(self, sep)
 }

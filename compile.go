@@ -51,7 +51,7 @@ func run_command(build Command, workingDir string, template Template, stdout io.
 				args = args[1:]
 			}
 		}
-		fmt.Printf("Running command %s - %s\n", cmdStr, args)
+
 		cmd := exec.Command(cmdStr, args...)
 
 		cmd.Dir = workingDir
@@ -64,7 +64,7 @@ func run_command(build Command, workingDir string, template Template, stdout io.
 
 }
 
-func compile(workingDir, prefix string, lang *Language, version Version) error {
+func compile(workingDir, prefix string, lang *Language, version Version) (err error) {
 
 	errOut, _ := os.Create(lang.paths.Temp(fmt.Sprintf("%s-build.error", version.Version)))
 	stdOut, _ := os.Create(lang.paths.Temp(fmt.Sprintf("%s-build.log", version.Version)))
@@ -75,67 +75,10 @@ func compile(workingDir, prefix string, lang *Language, version Version) error {
 		Source: prefix,
 	}
 	for _, cmd := range version.Build {
-		if err := run_command(cmd, workingDir, template, stdOut, errOut); err != nil {
+		if err = run_command(cmd, workingDir, template, stdOut, errOut); err != nil {
 			return err
 		}
 	}
 
 	return nil
 }
-
-/*func compile(sourceDir string, config Config, version Version, stepCb func(step Step)) error {
-	errOut, _ := os.Create(filepath.Join(config.Temp, version.Name()+"-build.error"))
-	stdOut, _ := os.Create(filepath.Join(config.Temp, version.Name()+"-build.error"))
-
-	defer errOut.Close()
-	defer stdOut.Close()
-
-	if stepCb == nil {
-		stepCb = func(Step) {}
-	}
-
-	if runtime.GOOS == "windows" {
-
-	} else {
-
-		mkCmd := func(c string, args ...string) *exec.Cmd {
-			cmd := exec.Command(c, args...)
-			cmd.Dir = sourceDir
-			cmd.Env = os.Environ()
-			cmd.Stdout = stdOut
-			cmd.Stderr = errOut
-			return cmd
-		}
-
-		stepCb(Configure)
-		target := filepath.Join(config.Source, version.Name())
-		cmd := mkCmd("python", "./configure", "--prefix="+target)
-
-		err := cmd.Run()
-		if err != nil {
-			return err
-		}
-
-		stepCb(Build)
-		cmd = mkCmd("make")
-
-		err = cmd.Run()
-
-		if err != nil {
-			return err
-		}
-
-		stepCb(Install)
-		cmd = mkCmd("make", "install")
-
-		err = cmd.Run()
-
-		if err != nil {
-			return err
-		}
-
-	}
-
-	return nil
-
-}*/

@@ -111,7 +111,7 @@ func (self *Language) GetVersion(version string, oss OS, arch Arch, binary bool)
 
 func (self *Language) Use(version Version) error {
 	sourceDir := self.paths.Source(fmt.Sprintf("%s-%s-%s", version.Version, version.Os, version.Arch))
-	fmt.Printf("Sourcedir %s", sourceDir)
+
 	if !dirExists(sourceDir) {
 		return fmt.Errorf("Not installed")
 	}
@@ -171,7 +171,7 @@ func (self *Language) Install(version Version, progressCB func(step Step, progre
 	}
 
 	if shouldCopy {
-		total := analyzeDir(target)
+		total, _ := analyzeDir(target)
 		var index int64 = 0
 		if err := copyDir(target, sourceDir, func(s, t string) {
 			index++
@@ -230,6 +230,15 @@ func (self *Language) download(version Version, progressCB func(step Step, progr
 	}
 
 }
+
+/*func (self *Language) Environ () ([]string, error) {
+    if self.definition.Environment == nil {
+        return []string{}
+    }
+    for k, v := range self.definition.Environment {
+        Interpolate(k + v, v)
+    }
+}*/
 
 func (self *Language) compile(working, prefix string, version Version) error {
 	return compile(working, prefix, self, version)

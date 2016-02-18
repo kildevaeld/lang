@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -43,6 +44,7 @@ type Config struct {
 type Service struct {
 	config Config
 	langs  map[string]*Language
+	state  *State
 }
 
 func (self *Service) Languages() []string {
@@ -147,8 +149,6 @@ func (self *Service) Update(progressCB func(step Step, p, t int64)) error {
 		self.AddDefinition(l)
 	}
 
-	//self.langs = out
-
 	return nil
 }
 
@@ -193,8 +193,57 @@ func (self *Service) Install(lang, v string, binary bool, progressCB func(step S
 		}
 	}
 
-	return language.Install(*version, progressCB)
+	if self.state.List(language.GetName()).Contains(*version) {
+		return nil
+	}
 
+	err := language.Install(*version, progressCB)
+
+	if err != nil {
+		return err
+	}
+
+	self.state.Add(language.GetName(), *version)
+	if err = self.sync(); err != nil {
+		log.Printf("Could not sync")
+	}
+
+	return nil
+}
+
+func (self *Service) sync() error {
+	file := filepath.Join(self.config.Root, "installed.json")
+	if self.state == nil {
+		if fileExists(file) {
+			bs, err := ioutil.ReadFile(file)
+			/*if err != nil {
+				return err
+			}*/
+			if err == nil {
+				if err = json.Unmarshal(bs, &self.state); err == nil {
+					return nil
+				}
+			}
+
+		}
+
+		self.state = &State{
+			Installed: make(map[string]Versions),
+		}
+
+	} else {
+
+		bs, err := json.Marshal(self.state)
+
+		if err != nil {
+			return err
+		}
+
+		return ioutil.WriteFile(file, bs, 0755)
+
+	}
+
+	return nil
 }
 
 func New(config Config) *Service {
@@ -205,6 +254,9 @@ func New(config Config) *Service {
 	}
 
 	ser.loadManifestFile()
+	if err := ser.sync(); err != nil {
+		fmt.Printf("could not sync %s", err)
+	}
 
 	return ser
 }

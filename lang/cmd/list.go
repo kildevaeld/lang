@@ -17,8 +17,11 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/kildevaeld/lang"
 	"github.com/spf13/cobra"
 )
+
+var maxPrint int32
 
 // listCmd represents the list command
 var listCmd = &cobra.Command{
@@ -40,9 +43,19 @@ to quickly create a Cobra application.`,
 			}
 
 			def := la.Definition()
+			var found lang.StrSlice
+
 			for _, s := range def.Stable {
-				fmt.Printf("%s ", s.Version)
+				if int32(len(found)) == maxPrint && maxPrint != 0 {
+					break
+				}
+				if !found.Contains(s.Version) {
+					found = append(found, s.Version)
+				}
+
 			}
+
+			fmt.Printf("%s", found.Join(" "))
 		} else {
 			for _, la := range service.Languages() {
 				fmt.Printf("%s ", la)
@@ -56,6 +69,7 @@ to quickly create a Cobra application.`,
 func init() {
 	RootCmd.AddCommand(listCmd)
 
+	listCmd.Flags().Int32VarP(&maxPrint, "max", "m", 0, "")
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command

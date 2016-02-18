@@ -32,51 +32,11 @@ var service *lang.Service
 // This represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "lang",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "",
+	Long:  ``,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	Run: func(cmd *cobra.Command, args []string) {
 
-		/*bs, _ := ioutil.ReadFile("rust.json")
-
-		var def lang.Definition
-		err := json.Unmarshal(bs, &def)
-		fmt.Printf("%v\n", err)
-
-		serv, ferr := lang.NewLanguage("root/rust", def)
-		fmt.Printf("%v\n", ferr)
-		version := serv.GetVersion("1.6.0", lang.Linux, lang.X64, true)
-		fmt.Printf("%#v\n", version)
-		last := ""
-		var bar *pb.ProgressBar
-		err = serv.Install(*version, func(step lang.Step, progress, total int64) {
-			if last != step.String() {
-				last = step.String()
-				if bar != nil {
-					bar.FinishPrint("")
-				}
-				if total == 0 {
-					return
-				}
-				bar = pb.New64(total)
-				bar.ShowCounters = false
-
-				bar.Start()
-			}
-			bar.Set64(progress)
-			//fmt.Printf("\r\033[0K\033[90m%s %s", step, chalk.Cyan.Color(fmt.Sprintf("%d/%d", progress, total)))
-		})
-		if bar != nil {
-			bar.FinishPrint("")
-		}
-		fmt.Printf("%v\n", err)*/
-	},
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
