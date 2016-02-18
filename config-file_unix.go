@@ -5,7 +5,6 @@ package lang
 import (
 	"bytes"
 	"errors"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -30,7 +29,7 @@ func homeDir() (string, error) {
 	}
 	// First prefer the HOME environmental variable
 	if home := os.Getenv("HOME"); home != "" {
-		log.Printf("Detected home directory from env var: %s", home)
+		//log.Printf("Detected home directory from env var: %s", home)
 		homedir_cache = home
 		return home, nil
 	}
