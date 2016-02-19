@@ -21,20 +21,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var maxPrint int32
+var maxPrintFlag int32
+var installedFlag bool
 
 // listCmd represents the list command
 var listCmd = &cobra.Command{
 	Use:   "list",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "",
+	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: Work your own magic here
 
 		if len(args) > 0 {
 			la := service.GetLanguage(args[0])
@@ -46,7 +41,7 @@ to quickly create a Cobra application.`,
 			var found lang.StrSlice
 
 			for _, s := range def.Stable {
-				if int32(len(found)) == maxPrint && maxPrint != 0 {
+				if int32(len(found)) == maxPrintFlag && maxPrintFlag != 0 {
 					break
 				}
 				if !found.Contains(s.Version) {
@@ -69,15 +64,7 @@ to quickly create a Cobra application.`,
 func init() {
 	RootCmd.AddCommand(listCmd)
 
-	listCmd.Flags().Int32VarP(&maxPrint, "max", "m", 0, "")
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// listCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// listCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	listCmd.Flags().Int32VarP(&maxPrintFlag, "max", "m", 0, "")
+	listCmd.Flags().BoolVarP(&installedFlag, "installed", "i", false, "Print installed versions")
 
 }

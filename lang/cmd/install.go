@@ -77,12 +77,12 @@ func install(l, version string) error {
 	var process *Process
 	fmt.Printf("Installing %s@%s\n", l, version)
 	err := service.Install(l, version, binaryFlag, func(step lang.Step, progress, total int64) {
+
 		if currentStep != step {
-
 			if bar != nil {
-
-				bar.FinishPrint(ascii2.CursorUp(1) + ascii2.EraseLine + "  " + stepToMsg(step) + "\t\t done")
-
+				bar.NotPrint = true
+				bar.Finish()
+				fmt.Printf(ascii2.EraseLine)
 				bar = nil
 			}
 
@@ -113,9 +113,12 @@ func install(l, version string) error {
 	})
 
 	if bar != nil {
-		bar.FinishPrint(ascii2.CursorUp(1) + ascii2.EraseLine + "  " + stepToMsg(currentStep) + "\t\tDone")
+		bar.NotPrint = true
+		bar.Finish()
 
+		fmt.Printf(ascii2.EraseLines(2) + ascii2.EraseLine + fmt.Sprintf("  %s installed", l))
 	}
+
 	if process != nil {
 		process.Done("\n")
 	}

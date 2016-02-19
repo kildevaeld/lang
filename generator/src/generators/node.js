@@ -99,8 +99,7 @@ async function getVersion(repo, v) {
         }
         
         if (v.files[i] === 'src') {
-            //delete version.os;
-            //delete version.arch;
+           
             version.build = [
                 {
                     "interpreter": "python",

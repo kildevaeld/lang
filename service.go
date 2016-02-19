@@ -121,7 +121,7 @@ func (self *Service) Environ() []string {
 	path = append(path, "$PATH")
 	library = append(library, "$"+lib)
 
-	return []string{"PATH=" + strings.Join(path, ":"), "export " + lib + "=" + strings.Join(library, ":")}
+	return []string{"PATH=" + strings.Join(path, ":"), lib + "=" + strings.Join(library, ":")}
 
 }
 
